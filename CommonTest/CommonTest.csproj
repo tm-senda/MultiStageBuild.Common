@@ -62,11 +62,17 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-	<Target Name="RunNUnit" AfterTargets="AfterBuild" Condition="'$(NUNIT_PATH)' != ''">
+	<PropertyGroup>
+		<EnableRunNUnit Condition="'$(EnableRunNUnit)' == ''">true</EnableRunNUnit>
+	</PropertyGroup>
+	<Target Name="RunNUnit" AfterTargets="AfterBuild" Condition="'$(NUnitPath)' != '' and $(EnableRunNUnit)">
 		<PropertyGroup>
-			<NUnitCommand>"$(NUNIT_PATH)" "$(OutputPath)/$(AssemblyName).dll" /xml=nunit-result.xml</NUnitCommand>
+			<NUnitTargetFramework Condition="'$(NUnitTargetFramework)' == '' and '$(TargetFrameworkVersion)' == 'v4.5'">net-4.5</NUnitTargetFramework>
+			<NUnitTargetFramework Condition="'$(NUnitTargetFramework)' == '' and '$(TargetFrameworkVersion)' == 'v4.0'">net-4.0</NUnitTargetFramework>
+			<NUnitTargetFramework Condition="'$(NUnitTargetFramework)' == '' and '$(TargetFrameworkVersion)' == 'v3.5'">net-3.5</NUnitTargetFramework>
+			<NUnitTargetFramework Condition="'$(NUnitTargetFramework)' == '' and '$(TargetFrameworkVersion)' == 'v3.0'">net-3.0</NUnitTargetFramework>
+			<NUnitTargetFramework Condition="'$(NUnitTargetFramework)' == '' and '$(TargetFrameworkVersion)' == 'v2.0'">net-2.0</NUnitTargetFramework>
 		</PropertyGroup>
-		<Message Text="Execution Command: $(NUnitCommand)" />
-		<Exec Command="$(NUnitCommand)" />
+		<Exec Command="&quot;$(NUnitPath)&quot; &quot;$(OutputPath)/$(AssemblyName).dll&quot; /xml=nunit-result.xml /framework=$(NUnitTargetFramework)" />
 	</Target>
 </Project>
