@@ -2,6 +2,7 @@
 
 namespace MultiStageBuild.Common
 {
+	[TestFixture]
 	public class CommonClass1Test
 	{
 		[Test]
