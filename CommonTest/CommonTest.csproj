@@ -62,4 +62,11 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+	<Target Name="RunNUnit" AfterTargets="AfterBuild" Condition="'$(NUNIT_PATH)' != ''">
+		<PropertyGroup>
+			<NUnitCommand>"$(NUNIT_PATH)" "$(OutputPath)/$(AssemblyName).dll" /xml=nunit-result.xml</NUnitCommand>
+		</PropertyGroup>
+		<Message Text="Execution Command: $(NUnitCommand)" />
+		<Exec Command="$(NUnitCommand)" />
+	</Target>
 </Project>
