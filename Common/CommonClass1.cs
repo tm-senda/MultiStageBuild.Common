@@ -4,7 +4,7 @@
 	{
 		public bool Method1()
 		{
-			return false;
+			return true;
 		}
 	}
 }
