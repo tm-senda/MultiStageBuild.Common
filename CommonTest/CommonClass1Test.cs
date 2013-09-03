@@ -11,7 +11,7 @@ namespace MultiStageBuild.Common
 		public void TestMethod1()
 		{
 			var commonClass1 = new CommonClass1();
-			Assert.IsFalse(commonClass1.Method1());
+			Assert.IsTrue(commonClass1.Method1());
 		}
 	}
 }
