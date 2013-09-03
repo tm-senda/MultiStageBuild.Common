@@ -59,12 +59,8 @@
 	<!--
 	 | Targets for Jenkins
 	 |-->
-	<Target Name="UpdatePackages" AfterTargets="RestorePackages">
-		<Exec Command="&quot;$(NuGetExePath)&quot; update packages.config -Prerelease" />
-	</Target>
 	<PropertyGroup>
-		<EnableRunNUnit Condition="'$(EnableRunNUnit)' == ''">true</EnableRunNUnit>
-		<BuildPackage>false</BuildPackage>
+		<EnableRunNUnit Condition="'$(EnableRunNUnit)' == ''">false</EnableRunNUnit>
 	</PropertyGroup>
   <Target Name="RunNUnit" AfterTargets="AfterBuild" Condition="'$(NUnitPath)' != '' and $(EnableRunNUnit)">
     <PropertyGroup>
