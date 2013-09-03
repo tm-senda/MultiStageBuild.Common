@@ -55,24 +55,25 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+
+	<!--
+	 | Targets for Jenkins
+	 |-->
+	<Target Name="UpdatePackages" AfterTargets="RestorePackages">
+		<Exec Command="&quot;$(NuGetExePath)&quot; update packages.config -Prerelease" />
+	</Target>
 	<PropertyGroup>
 		<EnableRunNUnit Condition="'$(EnableRunNUnit)' == ''">true</EnableRunNUnit>
+		<BuildPackage>false</BuildPackage>
 	</PropertyGroup>
-	<Target Name="RunNUnit" AfterTargets="AfterBuild" Condition="'$(NUnitPath)' != '' and $(EnableRunNUnit)">
-		<PropertyGroup>
-			<NUnitTargetFramework Condition="'$(NUnitTargetFramework)' == '' and '$(TargetFrameworkVersion)' == 'v4.5'">net-4.5</NUnitTargetFramework>
-			<NUnitTargetFramework Condition="'$(NUnitTargetFramework)' == '' and '$(TargetFrameworkVersion)' == 'v4.0'">net-4.0</NUnitTargetFramework>
-			<NUnitTargetFramework Condition="'$(NUnitTargetFramework)' == '' and '$(TargetFrameworkVersion)' == 'v3.5'">net-3.5</NUnitTargetFramework>
-			<NUnitTargetFramework Condition="'$(NUnitTargetFramework)' == '' and '$(TargetFrameworkVersion)' == 'v3.0'">net-3.0</NUnitTargetFramework>
-			<NUnitTargetFramework Condition="'$(NUnitTargetFramework)' == '' and '$(TargetFrameworkVersion)' == 'v2.0'">net-2.0</NUnitTargetFramework>
-		</PropertyGroup>
-		<Exec Command="&quot;$(NUnitPath)&quot; &quot;$(OutputPath)/$(AssemblyName).dll&quot; /xml=nunit-result.xml /framework=$(NUnitTargetFramework)" />
-	</Target>
+  <Target Name="RunNUnit" AfterTargets="AfterBuild" Condition="'$(NUnitPath)' != '' and $(EnableRunNUnit)">
+    <PropertyGroup>
+      <NUnitTargetFramework Condition="'$(NUnitTargetFramework)' == '' and '$(TargetFrameworkVersion)' == 'v4.5'">net-4.5</NUnitTargetFramework>
+      <NUnitTargetFramework Condition="'$(NUnitTargetFramework)' == '' and '$(TargetFrameworkVersion)' == 'v4.0'">net-4.0</NUnitTargetFramework>
+      <NUnitTargetFramework Condition="'$(NUnitTargetFramework)' == '' and '$(TargetFrameworkVersion)' == 'v3.5'">net-3.5</NUnitTargetFramework>
+      <NUnitTargetFramework Condition="'$(NUnitTargetFramework)' == '' and '$(TargetFrameworkVersion)' == 'v3.0'">net-3.0</NUnitTargetFramework>
+      <NUnitTargetFramework Condition="'$(NUnitTargetFramework)' == '' and '$(TargetFrameworkVersion)' == 'v2.0'">net-2.0</NUnitTargetFramework>
+    </PropertyGroup>
+    <Exec Command="&quot;$(NUnitPath)&quot; &quot;$(OutputPath)/$(AssemblyName).dll&quot; /xml=nunit-result.xml /framework=$(NUnitTargetFramework)" />
+  </Target>
 </Project>

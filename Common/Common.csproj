@@ -11,6 +11,8 @@
     <AssemblyName>MultiStageBuild.Common</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -30,6 +32,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.5.0.6\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -42,12 +47,55 @@
     <Compile Include="CommonClass1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+
+	<!--
+	 | Targets for Jenkins
+	 |-->
+	<!-- Update snapshot packages -->
+	<Target Name="UpdateSnapshotPackages" BeforeTargets="RestorePackages">
+		<Message Text="UpdateSnapshotPackages" />
+		<ItemGroup>
+			<PackagesToDelete Include="$([System.IO.Directory]::GetDirectories(&quot;$(SolutionDir)\packages&quot;, &quot;*-snapshot&quot;))" />
+		</ItemGroup>
+		<RemoveDir Directories="@(PackagesToDelete)" />
+	</Target>
+  <!-- Intercept "BuildPackage" Target -->
+  <PropertyGroup>
+    <PackageVersion>1.0.0</PackageVersion>
+    <IsPrerelease Condition="'$(IsPrerelease)' == ''">true</IsPrerelease>
+  </PropertyGroup>
+  <Target Name="PrepareBuildPackage" BeforeTargets="BuildPackage">
+    <PropertyGroup>
+      <BuildCommand Condition="$(IsPrerelease)">$(BuildCommand) -version $(PackageVersion)-snapshot</BuildCommand>
+      <BuildCommand Condition="!$(IsPrerelease)">$(BuildCommand) -version $(PackageVersion)</BuildCommand>
+    </PropertyGroup>
   </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+	<!-- Push packages -->
+	<PropertyGroup>
+		<EnablePushPackage Condition="'$(EnablePushPackage)' == ''">false</EnablePushPackage>
+	</PropertyGroup>
+	<Target Name="PushPackage" AfterTargets="BuildPackage" DependsOnTargets="CleanOldPackages" Condition="$(EnablePushPackage)">
+		<CallTarget Targets="_PushPackageToLocal" Condition="Exists('$(PushPackageTo)')" />
+		<CallTarget Targets="_PushPackageToRemote" Condition="!Exists('$(PushPackageTo)')" />
+	</Target>
+	<Target Name="_PushPackageToLocal">
+		<ItemGroup>
+			<PackageFiles Include="$(PackageOutputDir)\*.nupkg" />
+		</ItemGroup>
+		<Copy SourceFiles="@(PackageFiles)" DestinationFolder="$(PushPackageTo)" />
+	</Target>
+	<Target Name="_PushPackageToRemote">
+		<!-- TODO -->
+	</Target>
+	<Target Name="CleanOldPackages" BeforeTargets="BuildPackage">
+		<ItemGroup>
+			<PackageFilesToDelete Include="$(PackageOutputDir)\*.nupkg" />
+		</ItemGroup>
+		<Delete Files="@(PackageFilesToDelete)" />
+	</Target>
 </Project>
